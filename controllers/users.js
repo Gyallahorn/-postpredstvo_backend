@@ -21,6 +21,10 @@ signToken = user => {
     );
 };
 module.exports = {
+    greetings: async (req, res, next) => {
+        return res.send('Hello there')
+    },
+
     signUp: async (req, res, next) => {
         const email = req.value.body.email; const password = req.value.body.password;
         console.log(

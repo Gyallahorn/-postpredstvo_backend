@@ -15,13 +15,14 @@ const { validateBody, schemas } = require("../../helpers/routeHelpers");
 const UserController = require("../../controllers/users");
 const passportSignIn = passport.authenticate("local", { session: false });
 const passportJWT = passport.authenticate("jwt", { session: false });
+router.route('/')
+    .post(UserController.greetings);
 
 router.route("/signup")
     .post(validateBody(schemas.authSchema), UserController.signUp);
 
 router.route("/signin")
     .post(passportSignIn, UserController.signIn);
-
 module.exports = router;
 
 // module.exports = router;

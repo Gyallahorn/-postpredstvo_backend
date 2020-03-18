@@ -21,7 +21,6 @@ mangoose.connect('mongodb+srv://gyallahorn:veryhardpassword@cluster0-vkpkm.mongo
 mangoose.set('debug', true);
 const port = process.env.PORT || 4000;
 app.listen(port, () => console.log('Server running on port ' + port));
-
 // api routes
 require('./models/user');
 app.use(require('./routes'));
