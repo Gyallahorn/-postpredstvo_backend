@@ -30,12 +30,26 @@ passport.use(
         }
     )
 );
+// passport.use(new LocalStrategy(
+//     function (username, password, done) {
+//         User.findOne({
+//             username: username
+//         }, function (err, user) {
+//             if (err) { return done(err); }
+//             if (!user) { return done(null, false); }
+//             if (!user.verifyPassword(password)) {
+//                 return done(null, false);
+//             }
+//         });
+//     }
+// ));
+
 
 // LOCAL STRATEGY
 passport.use(
     new LocalStrategy(
         {
-            usernameField: "email"
+            usernameField: 'email'
         },
         async (email, password, done) => {
             try {
