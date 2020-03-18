@@ -35,7 +35,22 @@ module.exports = {
         const newUser = new User({ email, password });
         await newUser.save();
 
+        var verificationToken = new VerificationToken({
+            userId: newUser.id,
+            verToken: crypto.randomBytes(16).toString("hex")
+        });
+        await verificationToken.save(err => {
+            console.log(verificationToken.verToken);
+        });
+
         return res.status(200).json({ msg: "success" });
+    },
+    signIn: async (req, res, next) => {
+        const email = req.value.body.email; const password = req.value.body.password;
+        User.findOne({ email }, (err, user) => {
+            const token = signToken(req.user);
+            res.status(200).json({ token });
+        })
     }
 
 }
