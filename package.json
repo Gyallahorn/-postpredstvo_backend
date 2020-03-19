@@ -1,33 +1,39 @@
 {
-    "name": "-postpredstvo_backend",
-    "version": "0.0.01",
-    "description": "NodeJS + MongoDB API for User Management, Authentication and Registration",
-    "license": "MIT",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/Gyallahorn/-postpredstvo_backend.git"
-    },
-    "scripts": {
-        "start": "node ./server.js",
-        "start-dev": "nodemon ./server.js"
-    },
-    "dependencies": {
-        "bcryptjs": "^2.4.3",
-        "body-parser": "^1.19.0",
-        "cors": "^2.8.4",
-        "express": "^4.17.1",
-        "express-jwt": "^5.3.1",
-        "express-session": "^1.17.0",
-        "joi": "^14.3.1",
-        "jsonwebtoken": "^8.5.1",
-        "jwt-decode": "^2.2.0",
-        "mongodb": "^3.2.7",
-        "mongoose": "^5.6.9",
-        "passport": "^0.4.1",
-        "passport-local": "^1.0.0",
-        "rootpath": "^0.1.2"
-    },
-    "devDependencies": {
-        "nodemon": "^2.0.2"
-    }
+  "name": "postpred",
+  "version": "0.0.1",
+  "description": "NodeJS + MongoDB API for User Management, Authentication and Registration",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gyallahorn/-postpredstvo_backend.git"
+  },
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "start-dev": "nodemon ./server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.4",
+    "express": "^4.17.1",
+    "express-jwt": "^5.3.1",
+    "express-session": "^1.17.0",
+    "joi": "^14.3.1",
+    "jsonwebtoken": "^8.5.1",
+    "jwt-decode": "^2.2.0",
+    "mongodb": "^3.2.7",
+    "mongoose": "^5.6.9",
+    "passport": "^0.4.1",
+    "passport-local": "^1.0.0",
+    "rootpath": "^0.1.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  },
+  "bugs": {
+    "url": "https://github.com/Gyallahorn/-postpredstvo_backend/issues"
+  },
+  "homepage": "https://github.com/Gyallahorn/-postpredstvo_backend#readme",
+  "author": "Gyallahorn"
 }
