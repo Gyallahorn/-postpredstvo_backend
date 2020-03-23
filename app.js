@@ -23,6 +23,7 @@ app.use('/uploads', express.static('uploads'));
 mangoose.Promise = global.Promise;
 mangoose.connect('mongodb+srv://gyallahorn:veryhardpassword@cluster0-vkpkm.mongodb.net/test?retryWrites=true&w=majority', { useNewUrlParser: true });
 mangoose.set('debug', true);
+mangoose.set('useCreateIndex', true);
 const port = process.env.PORT || 4000;
 app.listen(port, () => console.log('Server running on port ' + port));
 
