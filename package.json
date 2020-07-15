@@ -13,6 +13,7 @@
     "start-dev": "nodemon ./server.js"
   },
   "dependencies": {
+    "argon2": "^0.26.2",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "cors": "^2.8.4",

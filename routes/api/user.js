@@ -13,7 +13,7 @@ router.route("/signup")
     .post(validateBody(schemas.authSchema), UserController.signUp);
 
 router.route("/signin")
-    .get(UserController.ensureToken, UserController.signIn);
+    .post(UserController.ensureToken, UserController.signIn);
 
 module.exports = router;
 

@@ -8,6 +8,7 @@ const { JWT_SECRET } = require("../configuration/index");
 const passportSignIn = passport.authenticate("local", { session: false });
 const User = require('../models/user');
 const jwt_token = require('jwt-decode');
+const argon = require('argon2');
 
 signToken = user => {
     return JWT.sign(
@@ -50,13 +51,40 @@ module.exports = {
 
         return res.status(200).json({ msg: "success", token: token });
     },
-    signIn: async (req, res, next) => {
+
+
+
+    signIn: async (req, res, next) =>  {
+     const email = req.body.email; const password = req.body.password;
+     var passwordCorrect = false;
+     foundUser = await User.findOne({ email });
+
+     if(foundUser){
+         passwordCorrect =await foundUser.isValidPassword(password);
+         if(passwordCorrect){
+            res.json({ msg: "success", });
+
+        }
+        else{
+            res.json({msg:"wrong password or email"});
+        }
+     }
+     else{
+         return res.json({msg:"user not found"});
+     }
+
+     console.log("user exist and password correct");
 
         jwt.verify(req.token, 'my_secret_key', (err, data) => {
             if (err) {
+                console.log(err);
                 res.sendStatus(403);
-            } else {
-                res.json({ msg: "success", data: data });
+            } else  {
+                if (foundUser) {
+                    console.log("user exist");
+                  
+                }
+              
             }
         });
 
