@@ -9,6 +9,7 @@ const passportSignIn = passport.authenticate("local", { session: false });
 const User = require('../models/user');
 const jwt_token = require('jwt-decode');
 const argon = require('argon2');
+const { db } = require('../models/VerificationModel');
 
 signToken = user => {
     return JWT.sign(
@@ -95,10 +96,108 @@ module.exports = {
             const bearer = bearerHeader.split(" ");
             const bearerToken = bearer[1];
             req.token = bearerToken;
+            console.log("token ok");
             next();
         } else {
+            console.log("token bad");
+
             res.sendStatus(403);
         }
+    },
+
+    updateTest: async (req,res,next) => {
+        const email = req.body.email
+        foundUser = await User.findOne({ email });
+        
+        jwt.verify(req.token, 'my_secret_key', (err, data) => {
+            if (err) {
+                console.log(err);
+              return  res.json({msg:"invalid token"});
+            } else  {
+                if (foundUser) {
+                    console.log("user exist");
+                  
+                    db.collection('users').updateOne({'email':email},{$set:{test:req.body.test}},(err,result)=>{
+                
+                        if(err){
+                            return  res.json({msg:"error"+err});
+                        }
+                        else{
+                            return  res.json({msg:"success"});
+                        }
+                    })
+                }
+                else{
+                    return  res.json({msg:"error"});
+                }
+              
+            }
+        });
+
+     
+         
+    },
+    updateLocations: async (req,res,next) => {
+        const email = req.body.email
+        foundUser = await User.findOne({ email });
+        
+        jwt.verify(req.token, 'my_secret_key', (err, data) => {
+            if (err) {
+                console.log(err);
+              return  res.json({msg:"invalid token"});
+            } else  {
+                if (foundUser) {
+                    console.log("user exist");
+                  
+                    db.collection('users').updateOne({'email':email},{$set:{locations:req.body.locations}},(err,result)=>{
+                
+                        if(err){
+                            return    res.json({msg:"error"+err});
+                        }
+                        else{
+                            return  res.json({msg:"success"});
+                        }
+                    })
+                }
+                else{
+                    return  res.json({msg:"error"});
+                }
+              
+            }
+        });
+
+     
+         
+    },
+    getResults:async (req,res,next)=> {
+        const email = req.body.email
+        foundUser = await User.findOne({ email });
+        
+        jwt.verify(req.token, 'my_secret_key', (err, data) => {
+            if (err) {
+                console.log(err);
+              return  res.json({msg:"invalid token"});
+            } else  {
+                if (foundUser) {
+                    console.log("user exist");
+                  
+                    db.collection('users').find({'email':email,},(err,result)=>{
+                
+                        if(err){
+                            return  res.json({msg:"error "+err});
+                        }
+                        else{
+                            return  res.json(foundUser);
+                        }
+                    })
+                }
+                else{
+                    return  res.json({msg:"error"});
+                }
+              
+            }
+        });
+
     }
 
 }

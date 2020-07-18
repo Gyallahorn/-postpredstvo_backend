@@ -15,5 +15,12 @@ router.route("/signup")
 router.route("/signin")
     .post(UserController.ensureToken, UserController.signIn);
 
+router.route("/updateTest")
+    .patch(UserController.ensureToken,UserController.updateTest);
+
+router.route("/updateLocations").patch(UserController.ensureToken,UserController.updateLocations);
+
+router.route("/getTestResults").get(UserController.ensureToken, UserController.getResults);
+
 module.exports = router;
 

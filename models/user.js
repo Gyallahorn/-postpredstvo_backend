@@ -16,6 +16,9 @@ const userSchema = new Schema({
         required: false,
         default: false
     },
+    test:{
+        type:Number,
+    }
 });
 
 userSchema.pre("save", async function (next) {
