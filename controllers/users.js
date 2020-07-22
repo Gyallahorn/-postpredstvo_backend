@@ -10,6 +10,7 @@ const User = require('../models/user');
 const jwt_token = require('jwt-decode');
 const argon = require('argon2');
 const { db } = require('../models/VerificationModel');
+const sendMail = require('../helpers/nodemailer');
 
 signToken = user => {
     return JWT.sign(
@@ -22,6 +23,9 @@ signToken = user => {
         JWT_SECRET
     );
 };
+
+
+
 module.exports = {
     greetings: async (req, res, next) => {
         return res.send('Hello there')
@@ -29,17 +33,14 @@ module.exports = {
 
     signUp: async (req, res, next) => {
         const email = req.value.body.email; const password = req.value.body.password;
-        console.log(
-            email
-        );
+        console.log(email);
         const token = jwt.sign({ email }, 'my_secret_key');
         const foundUser = await User.findOne({ email });
         if (foundUser) {
-
             return res.status(400).json({ msg: "email is already used" });
-
         }
         const newUser = new User({ email, password });
+        sendMail(email);
         await newUser.save();
 
         var verificationToken = new VerificationToken({
@@ -55,37 +56,37 @@ module.exports = {
 
 
 
-    signIn: async (req, res, next) =>  {
-     const email = req.body.email; const password = req.body.password;
-     var passwordCorrect = false;
-     foundUser = await User.findOne({ email });
+    signIn: async (req, res, next) => {
+        const email = req.body.email; const password = req.body.password;
+        var passwordCorrect = false;
+        foundUser = await User.findOne({ email });
 
-     if(foundUser){
-         passwordCorrect =await foundUser.isValidPassword(password);
-         if(passwordCorrect){
-            res.json({ msg: "success", });
+        if (foundUser) {
+            passwordCorrect = await foundUser.isValidPassword(password);
+            if (passwordCorrect) {
+                res.json({ msg: "success", });
 
+            }
+            else {
+                res.json({ msg: "wrong password or email" });
+            }
         }
-        else{
-            res.json({msg:"wrong password or email"});
+        else {
+            return res.json({ msg: "user not found" });
         }
-     }
-     else{
-         return res.json({msg:"user not found"});
-     }
 
-     console.log("user exist and password correct");
+        console.log("user exist and password correct");
 
         jwt.verify(req.token, 'my_secret_key', (err, data) => {
             if (err) {
                 console.log(err);
                 res.sendStatus(403);
-            } else  {
+            } else {
                 if (foundUser) {
                     console.log("user exist");
-                  
+
                 }
-              
+
             }
         });
 
@@ -105,99 +106,104 @@ module.exports = {
         }
     },
 
-    updateTest: async (req,res,next) => {
+    updateTest: async (req, res, next) => {
         const email = req.body.email
         foundUser = await User.findOne({ email });
-        
+
         jwt.verify(req.token, 'my_secret_key', (err, data) => {
             if (err) {
                 console.log(err);
-              return  res.json({msg:"invalid token"});
-            } else  {
+                return res.json({ msg: "invalid token" });
+            } else {
                 if (foundUser) {
                     console.log("user exist");
-                  
-                    db.collection('users').updateOne({'email':email},{$set:{test:req.body.test}},(err,result)=>{
-                
-                        if(err){
-                            return  res.json({msg:"error"+err});
+
+                    db.collection('users').updateOne({ 'email': email }, { $set: { test: req.body.test } }, (err, result) => {
+
+                        if (err) {
+                            return res.json({ msg: "error" + err });
                         }
-                        else{
-                            return  res.json({msg:"success"});
+                        else {
+                            return res.json({ msg: "success" });
                         }
                     })
                 }
-                else{
-                    return  res.json({msg:"error"});
+                else {
+                    return res.json({ msg: "error" });
                 }
-              
+
             }
         });
 
-     
-         
+
+
     },
-    updateLocations: async (req,res,next) => {
+    updateLocations: async (req, res, next) => {
         const email = req.body.email
         foundUser = await User.findOne({ email });
-        
+
         jwt.verify(req.token, 'my_secret_key', (err, data) => {
             if (err) {
                 console.log(err);
-              return  res.json({msg:"invalid token"});
-            } else  {
+                return res.json({ msg: "invalid token" });
+            } else {
                 if (foundUser) {
                     console.log("user exist");
-                  
-                    db.collection('users').updateOne({'email':email},{$set:{locations:req.body.locations}},(err,result)=>{
-                
-                        if(err){
-                            return    res.json({msg:"error"+err});
+
+                    db.collection('users').updateOne({ 'email': email }, { $set: { locations: req.body.locations } }, (err, result) => {
+
+                        if (err) {
+                            return res.json({ msg: "error" + err });
                         }
-                        else{
-                            return  res.json({msg:"success"});
+                        else {
+                            return res.json({ msg: "success" });
                         }
                     })
                 }
-                else{
-                    return  res.json({msg:"error"});
+                else {
+                    return res.json({ msg: "error" });
                 }
-              
+
             }
         });
 
-     
-         
+
+
     },
-    getResults:async (req,res,next)=> {
+    getProfile: async (req, res, next) => {
         const email = req.body.email
         foundUser = await User.findOne({ email });
-        
+
         jwt.verify(req.token, 'my_secret_key', (err, data) => {
             if (err) {
                 console.log(err);
-              return  res.json({msg:"invalid token"});
-            } else  {
+                return res.json({ msg: "invalid token" });
+            } else {
                 if (foundUser) {
                     console.log("user exist");
-                  
-                    db.collection('users').find({'email':email,},(err,result)=>{
-                
-                        if(err){
-                            return  res.json({msg:"error "+err});
+
+                    db.collection('users').find({ 'email': email, }, (err, result) => {
+
+                        if (err) {
+                            return res.json({ msg: "error " + err });
                         }
-                        else{
-                            return  res.json(foundUser);
+                        else {
+                            return res.json(foundUser);
                         }
                     })
                 }
-                else{
-                    return  res.json({msg:"error"});
+                else {
+                    return res.json({ msg: "error" });
                 }
-              
+
             }
         });
 
-    }
+    },
+
+    getVerification: async (req, res, next) => {
+
+
+    },
 
 }
