@@ -11,14 +11,17 @@ const userSchema = new Schema({
         type: String, required: true
 
     },
-    isVerified: {
+    test: {
+        type: Number,
+    },
+    confirmed: {
         type: Boolean,
-        required: false,
         default: false
     },
-    test:{
-        type:Number,
-    }
+    isAdmin: {
+        type: Boolean,
+        default: false
+    },
 });
 
 userSchema.pre("save", async function (next) {
@@ -32,13 +35,13 @@ userSchema.pre("save", async function (next) {
     }
 });
 
-userSchema.methods.isValidPassword = async function(newPassword) {
+userSchema.methods.isValidPassword = async function (newPassword) {
     try {
-      return await bcrypt.compare(newPassword, this.password);
+        return await bcrypt.compare(newPassword, this.password);
     } catch (error) {
-      throw new Error(error);
+        throw new Error(error);
     }
-  };
+};
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;

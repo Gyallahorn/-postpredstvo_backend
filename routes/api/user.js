@@ -22,5 +22,7 @@ router.route("/updateLocations").patch(UserController.ensureToken, UserControlle
 
 router.route("/getTestResults").get(UserController.ensureToken, UserController.getProfile);
 
+router.route("/confirm/:token").get(UserController.confirmation);
+
 module.exports = router;
 

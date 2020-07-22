@@ -10,7 +10,7 @@ const User = require('../models/user');
 const jwt_token = require('jwt-decode');
 const argon = require('argon2');
 const { db } = require('../models/VerificationModel');
-const sendMail = require('../helpers/nodemailer');
+const nodemailer = require('nodemailer');
 
 signToken = user => {
     return JWT.sign(
@@ -34,13 +34,12 @@ module.exports = {
     signUp: async (req, res, next) => {
         const email = req.value.body.email; const password = req.value.body.password;
         console.log(email);
-        const token = jwt.sign({ email }, 'my_secret_key');
         const foundUser = await User.findOne({ email });
         if (foundUser) {
             return res.status(400).json({ msg: "email is already used" });
         }
+
         const newUser = new User({ email, password });
-        sendMail(email);
         await newUser.save();
 
         var verificationToken = new VerificationToken({
@@ -51,7 +50,46 @@ module.exports = {
             console.log(verificationToken.verToken);
         });
 
-        return res.status(200).json({ msg: "success", token: token });
+        try {
+
+
+            if (!foundUser) {
+                let transporter = nodemailer.createTransport({
+                    service: 'gmail',
+                    host: 'smtp.gmail.com',
+                    auth: {
+                        user: 'postpredstvoykt@gmail.com',
+                        pass: 'Supereasypassword'
+                    }
+
+                });
+
+                const info = {
+                    from: "postpredstvoykt@gmail.com",
+                    to: email,
+                    subject: "Код потверждения",
+                    text: `localhost:4000/api/user/confirm/${verificationToken.verToken}`,
+
+                }
+
+                transporter.sendMail(info, function (error, info) {
+                    if (error) {
+                        console.log(error);
+                    }
+                    else {
+
+                        console.log('Email sent' + info.response.toString);
+                    }
+                });
+
+            }
+        }
+        catch (err) {
+            console.log(err);
+        }
+
+
+        return res.status(200).json({ msg: "success" });
     },
 
 
@@ -60,16 +98,22 @@ module.exports = {
         const email = req.body.email; const password = req.body.password;
         var passwordCorrect = false;
         foundUser = await User.findOne({ email });
+        const token = jwt.sign({ email }, 'my_secret_key');
 
         if (foundUser) {
             passwordCorrect = await foundUser.isValidPassword(password);
-            if (passwordCorrect) {
-                res.json({ msg: "success", });
-
+            if (!foundUser.confirmed) {
+                if (passwordCorrect) {
+                    res.json({ msg: "success", token: token });
+                }
+                else {
+                    res.json({ msg: "wrong password or email" });
+                }
             }
             else {
-                res.json({ msg: "wrong password or email" });
+                res.json({ msg: "confirm your email" });
             }
+
         }
         else {
             return res.json({ msg: "user not found" });
@@ -77,18 +121,18 @@ module.exports = {
 
         console.log("user exist and password correct");
 
-        jwt.verify(req.token, 'my_secret_key', (err, data) => {
-            if (err) {
-                console.log(err);
-                res.sendStatus(403);
-            } else {
-                if (foundUser) {
-                    console.log("user exist");
+        // jwt.verify(req.token, 'my_secret_key', (err, data) => {
+        //     if (err) {
+        //         console.log(err);
+        //         res.sendStatus(403);
+        //     } else {
+        //         if (foundUser) {
+        //             console.log("user exist");
 
-                }
+        //         }
 
-            }
-        });
+        //     }
+        // });
 
     },
     ensureToken: async (req, res, next) => {
@@ -138,6 +182,30 @@ module.exports = {
 
 
     },
+    confirmation: async (req, res, next) => {
+        let vertoken = req.params.token;
+        VerificationToken.findOne({ verToken: vertoken }, (err, response) => {
+            if (response.verToken != vertoken) {
+                console.log(vertoken);
+                console.log(response.verToken);
+                return res.send('token not found!');
+            }
+            User.findOne({ _id: response.userId }, (err, user) => {
+                console.log(user);
+                db.collection('users').updateOne({ 'email': user.email }, { $set: { confirmation: true } }, (err, result) => {
+
+                    if (err) {
+                        return res.json({ msg: "error" + err });
+                    }
+                    else {
+                        return res.json({ msg: "user verified!" });
+                    }
+                })
+            });
+        })
+    },
+
+
     updateLocations: async (req, res, next) => {
         const email = req.body.email
         foundUser = await User.findOne({ email });
