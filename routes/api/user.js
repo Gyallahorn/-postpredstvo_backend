@@ -13,7 +13,7 @@ router.route("/signup")
     .post(validateBody(schemas.authSchema), UserController.signUp);
 
 router.route("/signin")
-    .post(UserController.ensureToken, UserController.signIn);
+    .post(UserController.signIn);
 
 router.route("/updateTest")
     .patch(UserController.ensureToken, UserController.updateTest);
@@ -21,6 +21,8 @@ router.route("/updateTest")
 router.route("/updateLocations").patch(UserController.ensureToken, UserController.updateLocations);
 
 router.route("/getTestResults").get(UserController.ensureToken, UserController.getProfile);
+
+router.route("/editProfile").post(UserController.ensureToken, UserController.postProfile);
 
 router.route("/confirm/:token").get(UserController.confirmation);
 

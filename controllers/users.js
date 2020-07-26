@@ -11,6 +11,9 @@ const jwt_token = require('jwt-decode');
 const argon = require('argon2');
 const { db } = require('../models/VerificationModel');
 const nodemailer = require('nodemailer');
+const { Console } = require('console');
+const { format } = require('path');
+const { use } = require('passport');
 
 signToken = user => {
     return JWT.sign(
@@ -102,16 +105,16 @@ module.exports = {
 
         if (foundUser) {
             passwordCorrect = await foundUser.isValidPassword(password);
-            if (!foundUser.confirmed) {
+            if (foundUser.confirmed) {
                 if (passwordCorrect) {
-                    res.json({ msg: "success", token: token });
+                    res.json({ msg: "success", token: token }).sendStatus(200);
                 }
                 else {
                     res.json({ msg: "wrong password or email" });
                 }
             }
             else {
-                res.json({ msg: "confirm your email" });
+                res.json({ msg: "confirm your email", status: 401 }).status(401);
             }
 
         }
@@ -151,34 +154,28 @@ module.exports = {
     },
 
     updateTest: async (req, res, next) => {
-        const email = req.body.email
-        foundUser = await User.findOne({ email });
+        let token = req.token;
+        var userTest = req.body.test;
 
-        jwt.verify(req.token, 'my_secret_key', (err, data) => {
+
+        console.log("Users token:" + token);
+        var userEmail;
+        jwt.verify(req.token, 'my_secret_key', async (err, data) => {
             if (err) {
                 console.log(err);
-                return res.json({ msg: "invalid token" });
-            } else {
-                if (foundUser) {
-                    console.log("user exist");
-
-                    db.collection('users').updateOne({ 'email': email }, { $set: { test: req.body.test } }, (err, result) => {
-
-                        if (err) {
-                            return res.json({ msg: "error" + err });
-                        }
-                        else {
-                            return res.json({ msg: "success" });
-                        }
-                    })
-                }
-                else {
-                    return res.json({ msg: "error" });
-                }
-
+                return res.json({ msg: "invalid token", error: err });
             }
+            userEmail = data.email;
         });
+        db.collection('users').updateOne({ email: userEmail }, { $set: { test: userTest } }, (err, result) => {
+            if (err) {
+                return res.json({ msg: err });
+            }
 
+
+
+        })
+        return res.json({ msg: "success", });
 
 
     },
@@ -192,7 +189,7 @@ module.exports = {
             }
             User.findOne({ _id: response.userId }, (err, user) => {
                 console.log(user);
-                db.collection('users').updateOne({ 'email': user.email }, { $set: { confirmation: true } }, (err, result) => {
+                db.collection('users').updateOne({ 'email': user.email }, { $set: { confirmed: true } }, (err, result) => {
 
                     if (err) {
                         return res.json({ msg: "error" + err });
@@ -208,7 +205,7 @@ module.exports = {
 
     updateLocations: async (req, res, next) => {
         const email = req.body.email
-        foundUser = await User.findOne({ email });
+        foundUser = await User.findOne({ email }); ``
 
         jwt.verify(req.token, 'my_secret_key', (err, data) => {
             if (err) {
@@ -239,33 +236,46 @@ module.exports = {
 
     },
     getProfile: async (req, res, next) => {
-        const email = req.body.email
-        foundUser = await User.findOne({ email });
-
-        jwt.verify(req.token, 'my_secret_key', (err, data) => {
+        let token = req.token;
+        console.log("Users token:" + token);
+        var userEmail;
+        jwt.verify(req.token, 'my_secret_key', async (err, data) => {
             if (err) {
                 console.log(err);
-                return res.json({ msg: "invalid token" });
-            } else {
-                if (foundUser) {
-                    console.log("user exist");
-
-                    db.collection('users').find({ 'email': email, }, (err, result) => {
-
-                        if (err) {
-                            return res.json({ msg: "error " + err });
-                        }
-                        else {
-                            return res.json(foundUser);
-                        }
-                    })
-                }
-                else {
-                    return res.json({ msg: "error" });
-                }
-
+                return res.json({ msg: "invalid token", error: err });
             }
+            userEmail = data.email;
         });
+        foundUser = await User.findOne({ email: userEmail });
+        if (foundUser.name != null) {
+            return res.json({ msg: "success", user: foundUser });
+        }
+        return res.json({ msg: "success not edited", user: foundUser });
+
+    },
+    postProfile: async (req, res, next) => {
+        let token = req.token;
+        var userName = req.body.name;
+        var userCity = req.body.city;
+
+        console.log("Users token:" + token);
+        var userEmail;
+        jwt.verify(req.token, 'my_secret_key', async (err, data) => {
+            if (err) {
+                console.log(err);
+                return res.json({ msg: "invalid token", error: err });
+            }
+            userEmail = data.email;
+        });
+        db.collection('users').updateOne({ email: userEmail }, { $set: { name: userName, city: userCity } }, (err, result) => {
+            if (err) {
+                return res.json({ msg: err });
+            }
+
+
+
+        })
+        return res.json({ msg: "success", });
 
     },
 
