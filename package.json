@@ -1,7 +1,7 @@
 {
   "name": "postpred",
   "engines": {
-    "node": "6.11.1"
+    "node": "10.16.0"
   },
   "version": "0.0.1",
   "description": "NodeJS + MongoDB API for User Management, Authentication and Registration",
