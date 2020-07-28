@@ -14,7 +14,11 @@ const userSchema = new Schema({
     name: {
         type: String,
     },
-    places: {
+    e_places: {
+    },
+    n_places: {
+    },
+    h_places: {
     },
     city: {
         type: String,
