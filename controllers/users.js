@@ -203,7 +203,7 @@ module.exports = {
     },
 
 
-    updateLocations: async (req, res, next) => {
+    updateEasyLocations: async (req, res, next) => {
         let token = req.token;
         var userPlaces = req.body.places;
 
@@ -217,7 +217,7 @@ module.exports = {
             }
             userEmail = data.email;
         });
-        db.collection('users').updateOne({ email: userEmail }, { $set: { places: userPlaces } }, (err, result) => {
+        db.collection('users').updateOne({ email: userEmail }, { $set: { e_places: userPlaces } }, (err, result) => {
             if (err) {
                 return res.json({ msg: err });
             }
@@ -228,6 +228,53 @@ module.exports = {
         return res.json({ msg: "success", });
 
 
+    },
+    updateNormalLocations: async (req, res, next) => {
+        let token = req.token;
+        var userPlaces = req.body.places;
+
+
+        console.log("Users token:" + token);
+        var userEmail;
+        jwt.verify(req.token, 'my_secret_key', async (err, data) => {
+            if (err) {
+                console.log(err);
+                return res.json({ msg: "invalid token", error: err });
+            }
+            userEmail = data.email;
+        });
+        db.collection('users').updateOne({ email: userEmail }, { $set: { n_places: userPlaces } }, (err, result) => {
+            if (err) {
+                return res.json({ msg: err });
+            }
+
+
+
+        })
+        return res.json({ msg: "success", });
+
+
+    },
+    updateHardLocations: async (req, res, next) => {
+        let token = req.token;
+        var userPlaces = req.body.places;
+
+
+        console.log("Users token:" + token);
+        var userEmail;
+        jwt.verify(req.token, 'my_secret_key', async (err, data) => {
+            if (err) {
+                console.log(err);
+                return res.json({ msg: "invalid token", error: err });
+            }
+            userEmail = data.email;
+        });
+        db.collection('users').updateOne({ email: userEmail }, { $set: { h_places: userPlaces } }, (err, result) => {
+            if (err) {
+                return res.json({ msg: err });
+            }
+        })
+        return res.json({ msg: "success", });
     },
     getProfile: async (req, res, next) => {
         let token = req.token;

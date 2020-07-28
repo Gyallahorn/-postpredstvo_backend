@@ -25,7 +25,10 @@ router.route("/editProfile").post(UserController.ensureToken, UserController.pos
 
 router.route("/confirm/:token").get(UserController.confirmation);
 
-router.route("/updateLocations").post(UserController.ensureToken, UserController.updateLocations);
+router.route("/updateEasyLocations").post(UserController.ensureToken, UserController.updateEasyLocations);
+router.route("/updateNormLocations").post(UserController.ensureToken, UserController.updateNormalLocations);
+router.route("/updateHardLocations").post(UserController.ensureToken, UserController.updateHardLocations);
+
 
 router.route("/getLocations").get(UserController.ensureToken, UserController.getLocations);
 
