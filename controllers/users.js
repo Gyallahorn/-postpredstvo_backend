@@ -307,9 +307,9 @@ module.exports = {
         });
         foundUser = await User.findOne({ email: userEmail });
         if (foundUser.name != null) {
-            return res.json({ msg: "success", user: foundUser.places });
+            return res.json({ msg: "success ", easy: foundUser.e_places, norm: foundUser.n_places, hard: foundUser.h_places });
         }
-        return res.json({ msg: "success not edited", user: foundUser.places });
+        return res.json({ msg: "success not edited", easy: foundUser.e_places, norm: foundUser.n_places, hard: foundUser.h_places });
 
     },
     postProfile: async (req, res, next) => {
