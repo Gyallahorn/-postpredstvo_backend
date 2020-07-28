@@ -15,10 +15,13 @@ const userSchema = new Schema({
         type: String,
     },
     e_places: {
+        type: Array
     },
     n_places: {
+        type: Array
     },
     h_places: {
+        type: Array
     },
     city: {
         type: String,
