@@ -14,6 +14,8 @@ const userSchema = new Schema({
     name: {
         type: String,
     },
+    places: {
+    },
     city: {
         type: String,
     },

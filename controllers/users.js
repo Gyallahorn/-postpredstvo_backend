@@ -204,34 +204,28 @@ module.exports = {
 
 
     updateLocations: async (req, res, next) => {
-        const email = req.body.email
-        foundUser = await User.findOne({ email }); ``
+        let token = req.token;
+        var userPlaces = req.body.places;
 
-        jwt.verify(req.token, 'my_secret_key', (err, data) => {
+
+        console.log("Users token:" + token);
+        var userEmail;
+        jwt.verify(req.token, 'my_secret_key', async (err, data) => {
             if (err) {
                 console.log(err);
-                return res.json({ msg: "invalid token" });
-            } else {
-                if (foundUser) {
-                    console.log("user exist");
-
-                    db.collection('users').updateOne({ 'email': email }, { $set: { locations: req.body.locations } }, (err, result) => {
-
-                        if (err) {
-                            return res.json({ msg: "error" + err });
-                        }
-                        else {
-                            return res.json({ msg: "success" });
-                        }
-                    })
-                }
-                else {
-                    return res.json({ msg: "error" });
-                }
-
+                return res.json({ msg: "invalid token", error: err });
             }
+            userEmail = data.email;
         });
+        db.collection('users').updateOne({ email: userEmail }, { $set: { places: userPlaces } }, (err, result) => {
+            if (err) {
+                return res.json({ msg: err });
+            }
 
+
+
+        })
+        return res.json({ msg: "success", });
 
 
     },
@@ -251,6 +245,24 @@ module.exports = {
             return res.json({ msg: "success", user: foundUser });
         }
         return res.json({ msg: "success not edited", user: foundUser });
+
+    },
+    getLocations: async (req, res, next) => {
+        let token = req.token;
+        console.log("Users token:" + token);
+        var userEmail;
+        jwt.verify(req.token, 'my_secret_key', async (err, data) => {
+            if (err) {
+                console.log(err);
+                return res.json({ msg: "invalid token", error: err });
+            }
+            userEmail = data.email;
+        });
+        foundUser = await User.findOne({ email: userEmail });
+        if (foundUser.name != null) {
+            return res.json({ msg: "success", user: foundUser.places });
+        }
+        return res.json({ msg: "success not edited", user: foundUser.places });
 
     },
     postProfile: async (req, res, next) => {

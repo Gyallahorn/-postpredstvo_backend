@@ -26,5 +26,9 @@ router.route("/editProfile").post(UserController.ensureToken, UserController.pos
 
 router.route("/confirm/:token").get(UserController.confirmation);
 
+router.route("/updateLocations").post(UserController.ensureToken, UserController.updateLocations);
+
+router.route("/getLocations").get(UserController.ensureToken, UserController.getLocations);
+
 module.exports = router;
 
