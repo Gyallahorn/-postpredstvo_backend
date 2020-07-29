@@ -296,6 +296,9 @@ module.exports = {
     },
     getLocations: async (req, res, next) => {
         let token = req.token;
+        let e_count = 0;
+        let n_count = 0;
+        let h_count = 0;
         console.log("Users token:" + token);
         var userEmail;
         jwt.verify(req.token, 'my_secret_key', async (err, data) => {
@@ -306,8 +309,29 @@ module.exports = {
             userEmail = data.email;
         });
         foundUser = await User.findOne({ email: userEmail });
-        if (foundUser.name != null) {
-            return res.json({ msg: "success ", easy: foundUser.e_places, norm: foundUser.n_places, hard: foundUser.h_places });
+        if (foundUser) {
+            console.log(foundUser.n_places[0].length);
+            if (foundUser.e_places[0] != null) {
+                for (i = 0; i < foundUser.e_places[0].length; i++) {
+                    if (foundUser.e_places[0][i] == '1') {
+                        e_count++;
+                    }
+                }
+            }
+            if (foundUser.n_places[0] != null) {
+                for (i = 0; i < foundUser.n_places[0].length; i++) {
+                    if (foundUser.n_places[0][i] == '1') {
+                        n_count++;
+                    }
+                }
+            } if (foundUser.h_places[0] != null) {
+                for (i = 0; i < foundUser.h_places[0].length; i++) {
+                    if (foundUser.h_places[0][i] == '1') {
+                        h_places++;
+                    }
+                }
+            }
+            return res.json({ msg: "success", easy: e_count, norm: n_count, hard: h_count });
         }
         return res.json({ msg: "success not edited", easy: foundUser.e_places, norm: foundUser.n_places, hard: foundUser.h_places });
 
