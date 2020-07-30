@@ -71,7 +71,7 @@ module.exports = {
                     from: "postpredstvoykt@gmail.com",
                     to: email,
                     subject: "Код потверждения",
-                    text: `localhost:4000/api/user/confirm/${verificationToken.verToken}`,
+                    text: `https://postpredstvo-back.herokuapp.com//api/user/confirm/${verificationToken.verToken}`,
 
                 }
 
