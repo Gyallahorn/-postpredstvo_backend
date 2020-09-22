@@ -7,6 +7,8 @@ const crypto = require('crypto');
 const { JWT_SECRET } = require("../configuration/index");
 const passportSignIn = passport.authenticate("local", { session: false });
 const User = require('../models/user');
+const Route = require('../models/route');
+const Difficult = require('../models/difficulties');
 const jwt_token = require('jwt-decode');
 const argon = require('argon2');
 const { db } = require('../models/VerificationModel');
@@ -14,6 +16,7 @@ const nodemailer = require('nodemailer');
 const { Console } = require('console');
 const { format } = require('path');
 const { use } = require('passport');
+const e = require('express');
 
 signToken = user => {
     return JWT.sign(
@@ -62,7 +65,7 @@ module.exports = {
                     host: 'smtp.gmail.com',
                     auth: {
                         user: 'postpredstvoykt@gmail.com',
-                        pass: 'Supereasypassword'
+                        pass: 'fnrhxfhfomlbrjnk'
                     }
 
                 });
@@ -71,7 +74,7 @@ module.exports = {
                     from: "postpredstvoykt@gmail.com",
                     to: email,
                     subject: "Код потверждения",
-                    text: `https://postpredstvo-back.herokuapp.com//api/user/confirm/${verificationToken.verToken}`,
+                    text: `https://postpredstvo-back.herokuapp.com/api/user/confirm/${verificationToken.verToken}`,
 
                 }
 
@@ -102,40 +105,31 @@ module.exports = {
         var passwordCorrect = false;
         foundUser = await User.findOne({ email });
         const token = jwt.sign({ email }, 'my_secret_key');
-
-        if (foundUser) {
-            passwordCorrect = await foundUser.isValidPassword(password);
-            if (foundUser.confirmed) {
-                if (passwordCorrect) {
-                    res.json({ msg: "success", token: token }).sendStatus(200);
+        try {
+            if (foundUser) {
+                passwordCorrect = await foundUser.isValidPassword(password);
+                if (foundUser.confirmed) {
+                    if (passwordCorrect) {
+                        console.log("success");
+                        return res.json({ msg: "success", token: token, status: 200 });
+                    }
+                    else {
+                        console.log("wrong password ");
+                        return res.json({ msg: "wrong password or email" });
+                    }
                 }
                 else {
-                    res.json({ msg: "wrong password or email" });
+                    console.log("confirm ur email ");
+                    return res.json({ msg: "confirm your email" }).status(401);
                 }
             }
             else {
-                res.json({ msg: "confirm your email", status: 401 }).status(401);
+                console.log("user not found"); return res.json({ msg: "user not found" });
             }
-
-        }
-        else {
-            return res.json({ msg: "user not found" });
+        } catch (error) {
+            console.log(error);
         }
 
-        console.log("user exist and password correct");
-
-        // jwt.verify(req.token, 'my_secret_key', (err, data) => {
-        //     if (err) {
-        //         console.log(err);
-        //         res.sendStatus(403);
-        //     } else {
-        //         if (foundUser) {
-        //             console.log("user exist");
-
-        //         }
-
-        //     }
-        // });
 
     },
     ensureToken: async (req, res, next) => {
@@ -205,11 +199,12 @@ module.exports = {
 
     updateEasyLocations: async (req, res, next) => {
         let token = req.token;
-        var userPlaces = req.body.places;
-
+        let lng = req.body.lng;
+        let ltd = req.body.ltd;
 
         console.log("Users token:" + token);
         var userEmail;
+        let users = db.collection('users');
         jwt.verify(req.token, 'my_secret_key', async (err, data) => {
             if (err) {
                 console.log(err);
@@ -217,65 +212,32 @@ module.exports = {
             }
             userEmail = data.email;
         });
-        db.collection('users').updateOne({ email: userEmail }, { $set: { e_places: userPlaces } }, (err, result) => {
+
+        users.findOne({ email: userEmail }, (err, result) => {
             if (err) {
-                return res.json({ msg: err });
+                return console.log(err)
             }
 
+            arr_lng = result.lng;
+            arr_ltd = result.ltd;
+            visited = arr_lng.length;
+            console.log(visited);
+            arr_lng[visited] = lng;
+            arr_ltd[visited] = ltd;
+            console.log(arr_ltd);
 
+            users.updateOne({ email: userEmail }, { $set: { lng: arr_lng, ltd: arr_ltd } }, (err, result) => {
+                if (err) {
+                    return res.json({ msg: err });
+                }
+                return res.json({ message: "succes", status: result.visited });
+            })
 
-        })
-        return res.json({ msg: "success", });
-
-
-    },
-    updateNormalLocations: async (req, res, next) => {
-        let token = req.token;
-        var userPlaces = req.body.places;
-
-
-        console.log("Users token:" + token);
-        var userEmail;
-        jwt.verify(req.token, 'my_secret_key', async (err, data) => {
-            if (err) {
-                console.log(err);
-                return res.json({ msg: "invalid token", error: err });
-            }
-            userEmail = data.email;
         });
-        db.collection('users').updateOne({ email: userEmail }, { $set: { n_places: userPlaces } }, (err, result) => {
-            if (err) {
-                return res.json({ msg: err });
-            }
-
-
-
-        })
-        return res.json({ msg: "success", });
-
 
     },
-    updateHardLocations: async (req, res, next) => {
-        let token = req.token;
-        var userPlaces = req.body.places;
 
 
-        console.log("Users token:" + token);
-        var userEmail;
-        jwt.verify(req.token, 'my_secret_key', async (err, data) => {
-            if (err) {
-                console.log(err);
-                return res.json({ msg: "invalid token", error: err });
-            }
-            userEmail = data.email;
-        });
-        db.collection('users').updateOne({ email: userEmail }, { $set: { h_places: userPlaces } }, (err, result) => {
-            if (err) {
-                return res.json({ msg: err });
-            }
-        })
-        return res.json({ msg: "success", });
-    },
     getProfile: async (req, res, next) => {
         let token = req.token;
         console.log("Users token:" + token);
@@ -365,6 +327,91 @@ module.exports = {
     getVerification: async (req, res, next) => {
 
 
+    },
+
+    getDiff: async (req, res, next) => {
+        Difficult.find({}, function (err, result) {
+            if (err) { return res.json(err) }
+            else {
+                return res.json(result).status(200);
+            }
+        })
+
+    },
+
+    getRoutes: async (req, res, next) => {
+        let diff = req.params.diff;
+        jwt.verify(req.token, 'my_secret_key', async (err, data) => {
+            if (err) {
+                console.log(err);
+                return res.json({ msg: "invalid token", error: err });
+            }
+            userEmail = data.email;
+        });
+
+
+        if (diff == "easy") {
+            Route.find({ difficult: "easy" }, function (err, result) {
+                if (err) {
+                    console.log("error!")
+                    console.log(err);
+                    return res.json({ msg: err });
+                }
+                else {
+
+                    console.log(result.body);
+                    return res.json(result);
+                }
+            });
+        }
+        if (diff == "normal") {
+            Route.find({ difficult: "normal" }, function (err, result) {
+                if (err) {
+                    console.log("error!")
+                    console.log(err);
+                    return res.json({ msg: err });
+                }
+                else {
+                    User.findOne({ email: userEmail }, (err, ress) => {
+                        if (err) {
+                            return console.log(err)
+                        }
+                        else {
+                            var notVisited = [];
+                            console.log("size of routes " + result.length)
+                            console.log("size of visited by user routes " + ress.lng.length)
+
+                            for (i = 0; i < ress.lng.length; i++) {
+                                for (j = 0; j < result.length; j++) {
+                                    if (ress.lng[i] == result[j].lng) {
+                                        console.log("SYKE!!!" + ress.lng[i]);
+                                        result = result.slice(j, 1);
+                                    }
+                                }
+                            }
+                            console.log("size of new routes " + result.length);
+
+                        }
+                        return res.json(result);
+
+                    });
+                }
+            });
+        }
+        if (diff == "hard") {
+            Route.find({ difficult: "hard" }, function (err, result) {
+                if (err) {
+                    console.log("error!")
+                    console.log(err);
+                    return res.json({ msg: err });
+                }
+                else {
+
+                    console.log(result.body);
+                    return res.json(result);
+                }
+            });
+        }
     },
 
 }

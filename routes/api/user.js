@@ -4,6 +4,7 @@ const router = express.Router();
 const passport = require('passport');
 const { validateBody, schemas } = require("../../helpers/routeHelpers");
 const UserController = require("../../controllers/users");
+const User = require('../../models/user');
 const passportSignIn = passport.authenticate('local', { failureFlash: true });
 const passportJWT = passport.authenticate("jwt", { session: false });
 router.route('/')
@@ -26,9 +27,10 @@ router.route("/editProfile").post(UserController.ensureToken, UserController.pos
 router.route("/confirm/:token").get(UserController.confirmation);
 
 router.route("/updateEasyLocations").post(UserController.ensureToken, UserController.updateEasyLocations);
-router.route("/updateNormLocations").post(UserController.ensureToken, UserController.updateNormalLocations);
-router.route("/updateHardLocations").post(UserController.ensureToken, UserController.updateHardLocations);
 
+router.route("/getRoutes/:diff").get(UserController.ensureToken, UserController.getRoutes);
+
+router.route("/getDifficulties").get(UserController.ensureToken, UserController.getDiff);
 
 router.route("/getLocations").get(UserController.ensureToken, UserController.getLocations);
 
