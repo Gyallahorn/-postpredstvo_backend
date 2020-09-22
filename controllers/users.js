@@ -14,7 +14,7 @@ const argon = require('argon2');
 const { db } = require('../models/VerificationModel');
 const nodemailer = require('nodemailer');
 const { Console } = require('console');
-const { format } = require('path');
+const { format, parse } = require('path');
 const { use } = require('passport');
 const e = require('express');
 
@@ -199,8 +199,8 @@ module.exports = {
 
     updateEasyLocations: async (req, res, next) => {
         let token = req.token;
-        let lng = req.body.lng;
-        let ltd = req.body.ltd;
+        let lng = parseFloat(req.body.lng);
+        let ltd = parseFloat(req.body.ltd);
 
         console.log("Users token:" + token);
         var userEmail;
@@ -364,6 +364,40 @@ module.exports = {
                 }
             });
         }
+        // if (diff == "normal") {
+        //     Route.find({ difficult: "normal" }, function (err, result) {
+        //         if (err) {
+        //             console.log("error!")
+        //             console.log(err);
+        //             return res.json({ msg: err });
+        //         }
+        //         else {
+        //             User.findOne({ email: userEmail }, (err, ress) => {
+        //                 if (err) {
+        //                     return console.log(err)
+        //                 }
+        //                 else {
+        //                     var notVisited = [];
+        //                     console.log("size of routes " + result.length)
+        //                     console.log("size of visited by user routes " + ress.lng.length)
+
+        //                     for (i = 0; i < ress.lng.length; i++) {
+        //                         for (j = 0; j < result.length; j++) {
+        //                             if (ress.lng[i] == result[j].lng) {
+        //                                 console.log("SYKE!!!" + ress.lng[i]);
+        //                                 result = result.slice(j, 1);
+        //                             }
+        //                         }
+        //                     }
+        //                     console.log("size of new routes " + result.length);
+
+        //                 }
+        //                 return res.json(result);
+
+        //             });
+        //         }
+        //     });
+        // }
         if (diff == "normal") {
             Route.find({ difficult: "normal" }, function (err, result) {
                 if (err) {
@@ -372,29 +406,9 @@ module.exports = {
                     return res.json({ msg: err });
                 }
                 else {
-                    User.findOne({ email: userEmail }, (err, ress) => {
-                        if (err) {
-                            return console.log(err)
-                        }
-                        else {
-                            var notVisited = [];
-                            console.log("size of routes " + result.length)
-                            console.log("size of visited by user routes " + ress.lng.length)
 
-                            for (i = 0; i < ress.lng.length; i++) {
-                                for (j = 0; j < result.length; j++) {
-                                    if (ress.lng[i] == result[j].lng) {
-                                        console.log("SYKE!!!" + ress.lng[i]);
-                                        result = result.slice(j, 1);
-                                    }
-                                }
-                            }
-                            console.log("size of new routes " + result.length);
-
-                        }
-                        return res.json(result);
-
-                    });
+                    console.log(result.body);
+                    return res.json(result);
                 }
             });
         }
