@@ -16,23 +16,14 @@ router.route("/signup")
 router.route("/signin")
     .post(UserController.signIn);
 
-router.route("/updateTest")
-    .patch(UserController.ensureToken, UserController.updateTest);
 
-
-router.route("/getTestResults").get(UserController.ensureToken, UserController.getProfile);
+router.route("/getProfile").get(UserController.ensureToken, UserController.getProfile);
 
 router.route("/editProfile").post(UserController.ensureToken, UserController.postProfile);
 
 router.route("/confirm/:token").get(UserController.confirmation);
 
-router.route("/updateEasyLocations").post(UserController.ensureToken, UserController.updateEasyLocations);
 
-router.route("/getRoutes/:diff").get(UserController.ensureToken, UserController.getRoutes);
-
-router.route("/getDifficulties").get(UserController.ensureToken, UserController.getDiff);
-
-router.route("/getLocations").get(UserController.ensureToken, UserController.getLocations);
 
 module.exports = router;
 

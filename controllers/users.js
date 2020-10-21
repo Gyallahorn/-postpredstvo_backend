@@ -147,38 +147,12 @@ module.exports = {
         }
     },
 
-    updateTest: async (req, res, next) => {
-        let token = req.token;
-        var userTest = req.body.test;
 
-
-        console.log("Users token:" + token);
-        var userEmail;
-        jwt.verify(req.token, 'my_secret_key', async (err, data) => {
-            if (err) {
-                console.log(err);
-                return res.json({ msg: "invalid token", error: err });
-            }
-            userEmail = data.email;
-        });
-        db.collection('users').updateOne({ email: userEmail }, { $set: { test: userTest } }, (err, result) => {
-            if (err) {
-                return res.json({ msg: err });
-            }
-
-
-
-        })
-        return res.json({ msg: "success", });
-
-
-    },
     confirmation: async (req, res, next) => {
         let vertoken = req.params.token;
         VerificationToken.findOne({ verToken: vertoken }, (err, response) => {
             if (response.verToken != vertoken) {
-                console.log(vertoken);
-                console.log(response.verToken);
+    
                 return res.send('token not found!');
             }
             User.findOne({ _id: response.userId }, (err, user) => {
@@ -197,45 +171,7 @@ module.exports = {
     },
 
 
-    updateEasyLocations: async (req, res, next) => {
-        let token = req.token;
-        let lng = parseFloat(req.body.lng);
-        let ltd = parseFloat(req.body.ltd);
-
-        console.log("Users token:" + token);
-        var userEmail;
-        let users = db.collection('users');
-        jwt.verify(req.token, 'my_secret_key', async (err, data) => {
-            if (err) {
-                console.log(err);
-                return res.json({ msg: "invalid token", error: err });
-            }
-            userEmail = data.email;
-        });
-
-        users.findOne({ email: userEmail }, (err, result) => {
-            if (err) {
-                return console.log(err)
-            }
-
-            arr_lng = result.lng;
-            arr_ltd = result.ltd;
-            visited = arr_lng.length;
-            console.log(visited);
-            arr_lng[visited] = lng;
-            arr_ltd[visited] = ltd;
-            console.log(arr_ltd);
-
-            users.updateOne({ email: userEmail }, { $set: { lng: arr_lng, ltd: arr_ltd } }, (err, result) => {
-                if (err) {
-                    return res.json({ msg: err });
-                }
-                return res.json({ message: "succes", status: result.visited });
-            })
-
-        });
-
-    },
+ 
 
 
     getProfile: async (req, res, next) => {
@@ -250,54 +186,14 @@ module.exports = {
             userEmail = data.email;
         });
         foundUser = await User.findOne({ email: userEmail });
-        if (foundUser.name != null) {
+  
+        if (foundUser!= null) {
             return res.json({ msg: "success", user: foundUser });
         }
         return res.json({ msg: "success not edited", user: foundUser });
 
     },
-    getLocations: async (req, res, next) => {
-        let token = req.token;
-        let e_count = 0;
-        let n_count = 0;
-        let h_count = 0;
-        console.log("Users token:" + token);
-        var userEmail;
-        jwt.verify(req.token, 'my_secret_key', async (err, data) => {
-            if (err) {
-                console.log(err);
-                return res.json({ msg: "invalid token", error: err });
-            }
-            userEmail = data.email;
-        });
-        foundUser = await User.findOne({ email: userEmail });
-        if (foundUser) {
-            console.log(foundUser.n_places[0].length);
-            if (foundUser.e_places[0] != null) {
-                for (i = 0; i < foundUser.e_places[0].length; i++) {
-                    if (foundUser.e_places[0][i] == '1') {
-                        e_count++;
-                    }
-                }
-            }
-            if (foundUser.n_places[0] != null) {
-                for (i = 0; i < foundUser.n_places[0].length; i++) {
-                    if (foundUser.n_places[0][i] == '1') {
-                        n_count++;
-                    }
-                }
-            } if (foundUser.h_places[0] != null) {
-                for (i = 0; i < foundUser.h_places[0].length; i++) {
-                    if (foundUser.h_places[0][i] == '1') {
-                        h_places++;
-                    }
-                }
-            }
-            return res.json({ msg: "success", easy: e_count, norm: n_count, hard: h_count });
-        }
-        return res.json({ msg: "success not edited", easy: foundUser.e_places, norm: foundUser.n_places, hard: foundUser.h_places });
-
-    },
+ 
     postProfile: async (req, res, next) => {
         let token = req.token;
         var userName = req.body.name;
@@ -324,108 +220,8 @@ module.exports = {
 
     },
 
-    getVerification: async (req, res, next) => {
-
-
-    },
-
-    getDiff: async (req, res, next) => {
-        Difficult.find({}, function (err, result) {
-            if (err) { return res.json(err) }
-            else {
-                return res.json(result).status(200);
-            }
-        })
-
-    },
-
-    getRoutes: async (req, res, next) => {
-        let diff = req.params.diff;
-        jwt.verify(req.token, 'my_secret_key', async (err, data) => {
-            if (err) {
-                console.log(err);
-                return res.json({ msg: "invalid token", error: err });
-            }
-            userEmail = data.email;
-        });
-
-
-        if (diff == "easy") {
-            Route.find({ difficult: "easy" }, function (err, result) {
-                if (err) {
-                    console.log("error!")
-                    console.log(err);
-                    return res.json({ msg: err });
-                }
-                else {
-
-                    console.log(result.body);
-                    return res.json(result);
-                }
-            });
-        }
-        // if (diff == "normal") {
-        //     Route.find({ difficult: "normal" }, function (err, result) {
-        //         if (err) {
-        //             console.log("error!")
-        //             console.log(err);
-        //             return res.json({ msg: err });
-        //         }
-        //         else {
-        //             User.findOne({ email: userEmail }, (err, ress) => {
-        //                 if (err) {
-        //                     return console.log(err)
-        //                 }
-        //                 else {
-        //                     var notVisited = [];
-        //                     console.log("size of routes " + result.length)
-        //                     console.log("size of visited by user routes " + ress.lng.length)
-
-        //                     for (i = 0; i < ress.lng.length; i++) {
-        //                         for (j = 0; j < result.length; j++) {
-        //                             if (ress.lng[i] == result[j].lng) {
-        //                                 console.log("SYKE!!!" + ress.lng[i]);
-        //                                 result = result.slice(j, 1);
-        //                             }
-        //                         }
-        //                     }
-        //                     console.log("size of new routes " + result.length);
-
-        //                 }
-        //                 return res.json(result);
-
-        //             });
-        //         }
-        //     });
-        // }
-        if (diff == "normal") {
-            Route.find({ difficult: "normal" }, function (err, result) {
-                if (err) {
-                    console.log("error!")
-                    console.log(err);
-                    return res.json({ msg: err });
-                }
-                else {
-
-                    console.log(result.body);
-                    return res.json(result);
-                }
-            });
-        }
-        if (diff == "hard") {
-            Route.find({ difficult: "hard" }, function (err, result) {
-                if (err) {
-                    console.log("error!")
-                    console.log(err);
-                    return res.json({ msg: err });
-                }
-                else {
-
-                    console.log(result.body);
-                    return res.json(result);
-                }
-            });
-        }
-    },
+ 
+   
+    
 
 }
